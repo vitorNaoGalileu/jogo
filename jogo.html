@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8">
+  <title>jogo da nave, creditos: vitor maché</title>
+
+  <audio id="SoundTiro" src="tiro.mp3"></audio>
+  <style>
+    body {
+      margin: 0;
+      height: 100vh;
+      background: #f0f0f0;
+      overflow: hidden;
+    }
+
+    #tesouro {
+      width: 75;
+      height: 300;
+    }
+
+    #tiro {
+      width: 75px;
+      height: 30px;
+      background: rgb(23, 0, 128);
+      position: absolute;
+      display: none;
+    }
+
+    #personagem {
+      width: 100px;
+      height: 100px;
+      background: green;
+      position: absolute;
+      left: 50px;
+      top: 50px;
+    }
+
+    #inimigo {
+      width: 100px;
+      height: 100px;
+      background: red;
+      position: absolute;
+      top: 300px;
+      left: 1400px;
+      display: flex;
+    }
+  </style>
+</head>
+<body>
+  <div id="tiro"></div>
+  <div id="personagem"></div>
+  <div id="inimigo"></div>
+
+  <script>
+    const somTiro = document.getElementById("SoundTiro")
+    const personagem = document.getElementById("personagem");
+    const tiro = document.getElementById("tiro");
+    const inimigo = document.getElementById("inimigo");
+
+    let posX = 50;
+    let posY = 50;
+    const velocidade = 8;
+
+    let tiroX = 0;
+    let tiroY = 0;
+    let atirando = false;
+    const velocidadeTiro = 20;
+
+    const teclas = {};
+
+    document.addEventListener("keydown", (event) => {
+      teclas[event.key.toLowerCase()] = true;
+
+      if ((event.key.toLowerCase() === "e") && !atirando) {
+        atirando = true;
+        tiroX = posX + 100;
+        tiroY = posY + 35;
+        tiro.style.left = tiroX + "px";
+        tiro.style.top = tiroY + "px";
+        tiro.style.display = "block";
+
+        somTiro.currentTime = 0;
+        somTiro.play();
+      }
+    });
+
+    document.addEventListener("keyup", (event) => {
+      teclas[event.key.toLowerCase()] = false;
+    });
+
+    function colisao(elem1, elem2) {
+      const r1 = elem1.getBoundingClientRect();
+      const r2 = elem2.getBoundingClientRect();
+
+      return !(
+        r1.top > r2.bottom ||
+        r1.bottom < r2.top ||
+        r1.left > r2.right ||
+        r1.right < r2.left
+      );
+    }
+
+    function atualizar() {
+      if (teclas["arrowup"] || teclas["w"]) posY -= velocidade;
+      if (teclas["arrowdown"] || teclas["s"]) posY += velocidade;
+      if (teclas["arrowleft"] || teclas["a"]) posX -= velocidade;
+      if (teclas["arrowright"] || teclas["d"]) posX += velocidade;
+
+      personagem.style.left = posX + "px";
+      personagem.style.top = posY + "px";
+
+      if (atirando) {
+        tiroX += velocidadeTiro;
+        tiro.style.left = tiroX + "px";
+
+        if (tiroX > window.innerWidth) {
+          atirando = false;
+          tiro.style.display = "none";
+        }
+
+        if (colisao(tiro, inimigo)) {
+          inimigo.style.background = "gray";
+          tiro.style.display = "none";
+          atirando = false;
+          setTimeout(() => {
+            inimigo.style.display = "none"
+          }, 1200)
+        }
+      }
+
+      requestAnimationFrame(atualizar);
+    }
+
+    atualizar();
+  </script>
+</body>
+</html>
